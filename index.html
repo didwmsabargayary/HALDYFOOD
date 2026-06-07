@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HEALTHY FOOD - Premium Gourmet Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="header-address">
+            <div class="address-text">TITAGURI, KOKRAJHAR, ASSAM, PIN - 783370</div>
+            <div class="address-phone">PH : +91 8638964442</div>
+            <div class="address-map">
+                <a href="https://maps.app.goo.gl/bqYujNzhnLMx7U9V6" target="_blank" rel="noopener noreferrer">
+                    <svg class="map-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                    <span>Location Map</span>
+                </a>
+            </div>
+        </div>
+        <div class="logo-container">
+            <img src="./logo.png.png" alt="HEALTHY FOOD Logo" class="logo-image" onerror="this.src='./logo.png'">
+            <h1><span>HEALTHY</span> FOOD</h1>
+        </div>
+        <div class="audio-player">
+            <audio id="bgMusic" loop preload="auto">
+                <source src="./d.mp3" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            <button id="playPauseBtn" class="audio-btn">Play</button>
+            <button id="nextBtn" class="audio-btn">Next</button>
+        </div>
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="menu">Today's Menu</button>
+            <button class="tab-btn" data-tab="invoice">Invoice & Calculator</button>
+            <button class="tab-btn" data-tab="dues">Customer Dues</button>
+            <button class="tab-btn" data-tab="admin">Admin Panel</button>
+            <button class="tab-btn" data-tab="bug-report">Bug Report</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Today's Menu Section -->
+        <section id="menu" class="tab-content active">
+            <div class="menu-grid">
+                <!-- Menu items will be dynamically added here -->
+            </div>
+        </section>
+
+        <!-- Invoice & Calculator Section -->
+        <section id="invoice" class="tab-content">
+            <div class="calculator-container">
+                <div class="item-selection">
+                    <h2>Select Items</h2>
+                    <div class="items-list">
+                        <!-- Checkboxes will be dynamically added here -->
+                    </div>
+                </div>
+                <div class="invoice-preview">
+                    <h2>Invoice Preview</h2>
+                    <div class="selected-items">
+                        <!-- Selected items will appear here -->
+                    </div>
+                    <div class="total-section">
+                        <h3>Total Amount: <span>₹<span id="total-amount">0</span></span></h3>
+                        <button id="generate-invoice" class="generate-btn">Generate Invoice</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Public Customer Dues Section -->
+        <section id="dues" class="tab-content">
+            <div class="customer-form">
+                <h2>Customer Ledger (Public View)</h2>
+                <div class="customer-list-container">
+                    <div class="filters">
+                        <input type="text" id="public-customer-search" placeholder="Search customers...">
+                        <select id="public-sort-by">
+                            <option value="name">Sort by Name</option>
+                            <option value="amount">Sort by Amount</option>
+                            <option value="date">Sort by Latest Due</option>
+                        </select>
+                    </div>
+
+                    <div class="customer-table-container">
+                        <table class="customer-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer Name</th>
+                                    <th>Total Due Amount (₹)</th>
+                                    <th>Last Transaction</th>
+                                    <th>Status</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="public-customer-list">
+                                <!-- Public Customer rows will be dynamically added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Panel Section -->
+        <section id="admin" class="tab-content">
+            <!-- Admin Login View -->
+            <div id="admin-login-view" class="admin-card">
+                <h2>Admin Login</h2>
+                <form id="admin-login-form">
+                    <div class="admin-input-group">
+                        <label for="admin-password">Enter Password</label>
+                        <input type="password" id="admin-password" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Access Dashboard</button>
+                </form>
+            </div>
+
+            <!-- Admin Dashboard (Hidden by default) -->
+            <div id="admin-dashboard-view" class="admin-dashboard-layout" style="display: none;">
+                <div class="admin-tabs">
+                    <button class="admin-tab-btn active" data-subtab="admin-menu">Manage Menu</button>
+                    <button class="admin-tab-btn" data-subtab="admin-dues">Customer Dues</button>
+                </div>
+
+                <!-- Subtab: Manage Menu -->
+                <div id="admin-menu" class="admin-subcontent active">
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
+                        <!-- Add Item Form -->
+                        <div class="customer-form">
+                            <h3>Add New Menu Item</h3>
+                            <form id="add-item-form">
+                                <div class="form-group">
+                                    <label for="item-name">Item Name</label>
+                                    <input type="text" id="item-name" placeholder="e.g. Green Salad (सलाद)" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="item-price">Price (₹)</label>
+                                    <input type="number" id="item-price" min="0" placeholder="e.g. 50" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="item-image-file">Upload Item Image</label>
+                                    <input type="file" id="item-image-file" accept="image/*">
+                                    <div style="margin-top: 8px; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">Or enter image filename/URL:</div>
+                                    <input type="text" id="item-image-url" placeholder="e.g. water.jpeg or https://example.com/image.jpg">
+                                </div>
+                                <button type="submit" class="submit-btn">Add Product</button>
+                            </form>
+                        </div>
+
+                        <!-- Menu Items Management List -->
+                        <div class="customer-form">
+                            <h3>Menu Visibility & Price Control</h3>
+                            <div class="admin-items-grid" id="admin-menu-list">
+                                <!-- Menu management list will be dynamically loaded here -->
+                            </div>
+                            <div class="admin-actions">
+                                <button id="save-menu-changes" class="save-btn">Save Menu Settings</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subtab: Customer Dues -->
+                <div id="admin-dues" class="admin-subcontent">
+                    <div class="dues-container">
+                        <div class="dues-header">
+                            <h2>Customer Ledger</h2>
+                            <div class="header-buttons">
+                                <button id="add-customer-btn" class="secondary-btn">+ Add Customer</button>
+                                <button id="export-data" class="secondary-btn">Export Dues JSON</button>
+                            </div>
+                        </div>
+
+                        <!-- Add Customer Form -->
+                        <div id="add-customer-form" class="customer-form" style="display: none;">
+                            <h3>Add New Customer Due</h3>
+                            <form id="customer-form">
+                                <div class="form-group">
+                                    <label for="customer-name">Customer Name</label>
+                                    <input type="text" id="customer-name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="due-amount">Initial Due Amount (₹)</label>
+                                    <input type="number" id="due-amount" min="0" step="0.01" required>
+                                </div>
+                                <div class="form-buttons">
+                                    <button type="submit" class="submit-btn">Add Customer</button>
+                                    <button type="button" id="cancel-add-customer" class="cancel-btn">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="customer-list-container">
+                            <div class="filters">
+                                <input type="text" id="customer-search" placeholder="Search customers...">
+                                <select id="sort-by">
+                                    <option value="name">Sort by Name</option>
+                                    <option value="amount">Sort by Amount</option>
+                                    <option value="date">Sort by Latest Due</option>
+                                </select>
+                            </div>
+
+                            <div class="customer-table-container">
+                                <table class="customer-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Customer Name</th>
+                                            <th>Total Due Amount (₹)</th>
+                                            <th>Last Transaction</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="customer-list">
+                                        <!-- Customer rows will be dynamically added here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bug / Contact Tab Section -->
+        <section id="bug-report" class="tab-content">
+            <div class="bug-report-container">
+                <h2 class="bug-report-title">🛠️ Help Us Improve – Feedback & Support</h2>
+                <div class="bug-report-content">
+                    <p>Dear Valued Customer,</p>
+                    <p>Welcome to <strong>HEALTHY FOOD</strong>. We are committed to providing premium quality foods and services. Our portal is continuously updated to ensure a smooth, professional, and secure browsing and billing experience.</p>
+                    <p>If you encounter any issues, discrepancies in prices, or have suggestions for improvements, we would be delighted to hear from you.</p>
+                    <p>When reporting a technical glitch, please provide:</p>
+                    <ul>
+                        <li>A brief description of the issue.</li>
+                        <li>The page or form where you noticed the error.</li>
+                        <li>The device and web browser you are using.</li>
+                    </ul>
+                    <p>Please send all queries and reports directly to our support team:</p>
+                    <p class="email-link">📩 <a href="mailto:didwmsaxander61@gmail.com">didwmsaxander61@gmail.com</a></p>
+                    <p>We review every message with high priority. Thank you for your continued support!</p>
+                    <p>Warm regards,<br><strong>The HEALTHY FOOD Management</strong><br><a href="https://didwmsabargayary.github.io/FST-WEB/" target="_blank">👉 DIDWMSA BARGAYARY </a></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modals -->
+        <!-- Invoice Modal -->
+        <div id="invoice-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div id="invoice-details"></div>
+                
+                <!-- Dues assignment section -->
+                <div id="invoice-dues-section" style="display: none; margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ccc;">
+                    <h4 style="margin-bottom: 10px; color: var(--primary-color);">Record as Customer Due</h4>
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label for="due-customer-search" style="display: block; margin-bottom: 5px; font-weight: 600;">Customer Name</label>
+                        <input type="text" id="due-customer-search" list="invoice-existing-customers" placeholder="Select or type customer name..." style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        <datalist id="invoice-existing-customers">
+                            <!-- Options will be populated dynamically from existing customer names -->
+                        </datalist>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button id="confirm-save-dues" class="submit-btn" style="padding: 8px 16px; font-size: 0.9rem; border-radius: 20px; width: auto; flex: 1;">Confirm & Save</button>
+                        <button id="cancel-save-dues" class="cancel-btn" style="padding: 8px 16px; font-size: 0.9rem; border-radius: 20px; flex: 1;">Cancel</button>
+                    </div>
+                </div>
+
+                <div class="modal-actions" style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button id="print-invoice" class="print-btn" style="margin: 0; flex: 1;">Print Invoice</button>
+                    <button id="invoice-add-dues-btn" class="secondary-btn" style="margin: 0; flex: 1; border-radius: 30px; font-weight: 700; height: auto;">Add to Dues</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Modal -->
+        <div id="customer-modal" class="modal">
+            <div class="modal-content modal-large">
+                <span class="close">&times;</span>
+                <div class="modal-header">
+                    <h2>Customer Ledger Details</h2>
+                    <div class="customer-summary">
+                        <div>Customer: <span id="modal-customer-name" style="font-weight: 800;"></span></div>
+                        <div>Total Outstanding: <span style="color: #e63946;">₹<span id="modal-total-due">0.00</span></span></div>
+                    </div>
+                    <button id="print-customer-dues" class="print-btn">Print Ledger Report</button>
+                </div>
+                <div class="vouchers-by-date">
+                    <!-- Grouped transactions rendered dynamically -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="social-media-section">
+        <h2>Connect With HEALTHY FOOD</h2>
+        <div class="social-links">
+            <a href="https://x.com/CYBERWO04021869" target="_blank" class="social-link">
+                <svg class="social-icon" viewBox="0 0 24 24">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                Twitter X
+            </a>
+            <a href="https://www.linkedin.com/in/didwmsa-bargayary-1848a1215/?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAADZqIbQBhoBuFf5fmdCgBac7vm1yGxu0hVg" target="_blank" class="social-link">
+                <svg class="social-icon" viewBox="0 0 24 24">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+                LinkedIn
+            </a>
+            <a href="https://www.youtube.com/@cyberwolf4572" target="_blank" class="social-link">
+                <svg class="social-icon" viewBox="0 0 24 24">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+                YouTube
+            </a>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
