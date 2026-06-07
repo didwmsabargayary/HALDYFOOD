@@ -1105,7 +1105,23 @@ input:checked + .slider:before {
     .logo-container h1 {
         font-size: 1.85rem;
     }
+    .tabs {
+        display: flex;
+        justify-content: flex-start;
+        gap: 0.5rem;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding: 5px 10px;
+        margin: 0 -1rem;
+        width: calc(100% + 2rem);
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+    }
+    .tabs::-webkit-scrollbar {
+        display: none;
+    }
     .tab-btn {
+        flex: 0 0 auto;
         padding: 0.6rem 1.25rem;
         font-size: 0.85rem;
     }
@@ -1118,6 +1134,132 @@ input:checked + .slider:before {
     .filters input {
         max-width: 100%;
     }
+    
+    /* Modals mobile spacing */
+    .modal-content {
+        padding: 1.5rem 1.25rem;
+        margin: 15% auto;
+        width: 95%;
+    }
+    .modal-header h2 {
+        font-size: 1.4rem;
+    }
+    .customer-summary {
+        font-size: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    .modal-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .modal-actions button {
+        width: 100%;
+        margin: 0 !important;
+    }
+}
+
+@media (max-width: 600px) {
+    /* Responsive Table to Cards */
+    .customer-table, 
+    .customer-table tbody, 
+    .customer-table tr, 
+    .customer-table td {
+        display: block;
+        width: 100%;
+    }
+    
+    .customer-table {
+        min-width: 100% !important;
+    }
+    
+    .customer-table thead {
+        display: none; /* Hide standard headers */
+    }
+    
+    .customer-table tr {
+        margin-bottom: 1rem;
+        background: var(--card-background);
+        border-radius: var(--border-radius-md);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid rgba(82, 183, 136, 0.15);
+        padding: 1rem;
+    }
+    
+    .customer-table td {
+        border-bottom: 1px dashed rgba(0, 0, 0, 0.05);
+        padding: 0.6rem 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+    }
+    
+    .customer-table td:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+        margin-top: 5px;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+    
+    .customer-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: var(--primary-color);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        text-align: left;
+    }
+}
+
+/* Quantity Adjuster Styling */
+.quantity-adjuster {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: opacity var(--transition-fast);
+}
+
+.qty-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #ced4da;
+    background-color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    outline: none;
+    user-select: none;
+}
+
+.qty-btn:hover:not(:disabled) {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: white;
+}
+
+.qty-btn:active:not(:disabled) {
+    transform: scale(0.9);
+}
+
+.quantity-adjuster input.quantity-input {
+    width: 40px !important;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: var(--border-radius-sm);
+    padding: 0.3rem 0;
+    background-color: #f8f9fa;
+    color: var(--primary-color);
 }
 
 /* Print Invoice Styles */

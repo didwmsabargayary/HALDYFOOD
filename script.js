@@ -29,8 +29,53 @@ let customers = {};
 let currentTab = 'menu';
 let currentInvoice = { items: [], total: 0 };
 
-// Initialize data from localStorage
+// Initialize data from localStorage or Firebase
+let db = null;
+
 function initializeData() {
+    if (typeof useFirebase !== 'undefined' && useFirebase) {
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.database();
+            setupFirebaseListeners();
+            return;
+        } catch (error) {
+            console.error("Firebase initialization failed, falling back to LocalStorage:", error);
+        }
+    }
+    loadFromLocalStorage();
+}
+
+function setupFirebaseListeners() {
+    if (!db) return;
+
+    // Listen for menu items changes
+    db.ref('menuItems').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data && Array.isArray(data)) {
+            menuItems = data;
+        } else {
+            menuItems = [...defaultMenuItems];
+            db.ref('menuItems').set(menuItems);
+        }
+        renderPublicMenu();
+        renderInvoiceItemsList();
+        if (typeof loadAdminMenuTab === 'function') loadAdminMenuTab();
+    });
+
+    // Listen for dues changes
+    db.ref('dues').on('value', (snapshot) => {
+        const data = snapshot.val();
+        dues = (data && Array.isArray(data)) ? data : [];
+        updateCustomerSummary();
+        renderCustomerDuesList();
+        renderPublicDuesList();
+    });
+}
+
+function loadFromLocalStorage() {
     // 1. Menu Items
     const savedMenu = localStorage.getItem('menuItems');
     if (savedMenu) {
@@ -46,6 +91,22 @@ function initializeData() {
     
     updateCustomerSummary();
     renderPublicDuesList();
+}
+
+function saveMenuData() {
+    if (typeof useFirebase !== 'undefined' && useFirebase && db) {
+        db.ref('menuItems').set(menuItems);
+    } else {
+        localStorage.setItem('menuItems', JSON.stringify(menuItems));
+    }
+}
+
+function saveDuesData() {
+    if (typeof useFirebase !== 'undefined' && useFirebase && db) {
+        db.ref('dues').set(dues);
+    } else {
+        localStorage.setItem('dues', JSON.stringify(dues));
+    }
 }
 
 // Update customers rollup from raw dues entries
@@ -115,25 +176,46 @@ function renderInvoiceItemsList() {
                 <input type="checkbox" id="item-${item.id}" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}">
                 <span>${item.name} - ₹${parseFloat(item.price).toFixed(2)}</span>
             </label>
-            <input type="number" class="quantity-input" value="1" min="1" disabled style="opacity: 0.5;">
+            <div class="quantity-adjuster" style="display: flex; align-items: center; gap: 5px; opacity: 0.5; pointer-events: none;">
+                <button type="button" class="qty-btn qty-minus">-</button>
+                <input type="number" class="quantity-input" value="1" min="1" readonly>
+                <button type="button" class="qty-btn qty-plus">+</button>
+            </div>
         `;
         itemsList.appendChild(itemDiv);
 
         const checkbox = itemDiv.querySelector('input[type="checkbox"]');
+        const adjuster = itemDiv.querySelector('.quantity-adjuster');
         const quantityInput = itemDiv.querySelector('.quantity-input');
+        const btnMinus = itemDiv.querySelector('.qty-minus');
+        const btnPlus = itemDiv.querySelector('.qty-plus');
 
         checkbox.addEventListener('change', function() {
             if (this.checked) {
-                quantityInput.disabled = false;
-                quantityInput.style.opacity = '1';
+                adjuster.style.opacity = '1';
+                adjuster.style.pointerEvents = 'auto';
             } else {
-                quantityInput.disabled = true;
-                quantityInput.style.opacity = '0.5';
+                adjuster.style.opacity = '0.5';
+                adjuster.style.pointerEvents = 'none';
             }
             updateSelectedItems();
         });
 
-        quantityInput.addEventListener('input', updateSelectedItems);
+        btnMinus.addEventListener('click', (e) => {
+            e.preventDefault();
+            let val = parseInt(quantityInput.value) || 1;
+            if (val > 1) {
+                quantityInput.value = val - 1;
+                updateSelectedItems();
+            }
+        });
+
+        btnPlus.addEventListener('click', (e) => {
+            e.preventDefault();
+            let val = parseInt(quantityInput.value) || 1;
+            quantityInput.value = val + 1;
+            updateSelectedItems();
+        });
     });
 }
 
@@ -439,7 +521,7 @@ function setupAdminMenuSave() {
         });
 
         if (updated) {
-            localStorage.setItem('menuItems', JSON.stringify(menuItems));
+            saveMenuData();
             alert('Menu configurations saved successfully!');
             renderPublicMenu();
             renderInvoiceItemsList();
@@ -481,7 +563,7 @@ function setupAddNewItem() {
             };
 
             menuItems.push(newItem);
-            localStorage.setItem('menuItems', JSON.stringify(menuItems));
+            saveMenuData();
 
             alert(`"${name}" has been successfully added to the menu!`);
             addItemForm.reset();
@@ -521,11 +603,11 @@ function renderCustomerDuesList() {
     customerEntries.forEach(([name, data]) => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td><span class="customer-name" data-name="${name}">${name}</span></td>
-            <td>₹${data.totalDue.toFixed(2)}</td>
-            <td>${formatDate(data.lastTransaction)}</td>
-            <td>${data.totalDue > 0 ? '<span class="status-pending">Pending</span>' : '<span class="status-paid">Settled</span>'}</td>
-            <td>
+            <td data-label="Customer Name"><span class="customer-name" data-name="${name}">${name}</span></td>
+            <td data-label="Total Due">₹${data.totalDue.toFixed(2)}</td>
+            <td data-label="Last Due">${formatDate(data.lastTransaction)}</td>
+            <td data-label="Status">${data.totalDue > 0 ? '<span class="status-pending">Pending</span>' : '<span class="status-paid">Settled</span>'}</td>
+            <td data-label="Actions">
                 <button class="action-btn inspect-btn" data-name="${name}">Inspect Ledger</button>
                 <button class="action-btn delete delete-btn" data-name="${name}">Clear / Delete</button>
             </td>
@@ -566,11 +648,11 @@ function renderPublicDuesList() {
     customerEntries.forEach(([name, data]) => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td><span class="customer-name" data-name="${name}">${name}</span></td>
-            <td>₹${data.totalDue.toFixed(2)}</td>
-            <td>${formatDate(data.lastTransaction)}</td>
-            <td>${data.totalDue > 0 ? '<span class="status-pending">Pending</span>' : '<span class="status-paid">Settled</span>'}</td>
-            <td>
+            <td data-label="Customer Name"><span class="customer-name" data-name="${name}">${name}</span></td>
+            <td data-label="Total Due">₹${data.totalDue.toFixed(2)}</td>
+            <td data-label="Last Due">${formatDate(data.lastTransaction)}</td>
+            <td data-label="Status">${data.totalDue > 0 ? '<span class="status-pending">Pending</span>' : '<span class="status-paid">Settled</span>'}</td>
+            <td data-label="Details">
                 <button class="action-btn inspect-btn" data-name="${name}">Inspect Statement</button>
             </td>
         `;
@@ -677,7 +759,7 @@ function addNewCustomer(customerName, dueAmount) {
     dues.push(newDue);
     
     try {
-        localStorage.setItem('dues', JSON.stringify(dues));
+        saveDuesData();
         updateCustomerSummary();
         renderCustomerDuesList();
         renderPublicDuesList();
@@ -694,7 +776,7 @@ function deleteCustomer(customerName) {
     if (confirm(`Are you sure you want to completely clear the ledger for "${customerName}"? This deletes all transaction histories permanently.`)) {
         dues = dues.filter(due => due.customerName !== customerName);
         try {
-            localStorage.setItem('dues', JSON.stringify(dues));
+            saveDuesData();
             updateCustomerSummary();
             renderCustomerDuesList();
             renderPublicDuesList();
@@ -859,7 +941,7 @@ function setupInvoiceDuesSaving() {
             dues.push(newDue);
             
             try {
-                localStorage.setItem('dues', JSON.stringify(dues));
+                saveDuesData();
                 updateCustomerSummary();
                 renderCustomerDuesList();
                 renderPublicDuesList();
@@ -886,12 +968,13 @@ function resetInvoiceSelection() {
     if (itemsList) {
         itemsList.querySelectorAll('.item-checkbox').forEach(itemDiv => {
             const checkbox = itemDiv.querySelector('input[type="checkbox"]');
+            const adjuster = itemDiv.querySelector('.quantity-adjuster');
             const quantityInput = itemDiv.querySelector('.quantity-input');
             if (checkbox) checkbox.checked = false;
-            if (quantityInput) {
-                quantityInput.value = "1";
-                quantityInput.disabled = true;
-                quantityInput.style.opacity = '0.5';
+            if (quantityInput) quantityInput.value = "1";
+            if (adjuster) {
+                adjuster.style.opacity = '0.5';
+                adjuster.style.pointerEvents = 'none';
             }
         });
     }
