@@ -1,6 +1,6 @@
 // Default Menu Items
 const defaultMenuItems = [
-    { id: 1, name: 'Milk Tea (गायखेर साहा)', price: 10, image: 'cuting chi.jpg', hidden: false },
+   // { id: 1, name: 'Milk Tea (गायखेर साहा)', price: 10, image: 'cuting chi.jpg', hidden: false },
     { id: 2, name: 'Lal tea (लाल साहा)', price: 10, image: 'lal.jpg', hidden: false },
     { id: 3, name: 'Biscuit (बिस्कुट)', price: 15, image: 'bis.jpeg', hidden: false },
     { id: 4, name: 'Papor (पापोर)', price: 5, image: 'papor.jpeg', hidden: false },
